@@ -97,19 +97,6 @@ if view_option == "Pipes Network":
             pipes_clean["Pipe_Status"].astype(str).str.strip().str.upper()
         )
 
-        # ---------------- MONTH FILTER ----------------
-        if "Month" in pipes_clean.columns:
-            pipes_clean["Month"] = pd.to_numeric(pipes_clean["Month"], errors="coerce")
-            pipes_clean = pipes_clean[pipes_clean["Month"] == month]
-
-        # ---------------- FILTER ----------------
-        filtered_pipes = pipes_clean.copy()
-
-        if risk != "All":
-            filtered_pipes = filtered_pipes[
-                filtered_pipes["Pipe_Status"] == risk
-            ]
-
         # ---------------- SEARCH ----------------
         if search_id:
             searched = filtered_pipes[
