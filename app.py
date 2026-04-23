@@ -29,7 +29,11 @@ view_option = st.sidebar.radio(
     ["Pipes Network", "Drain Nodes"]
 )
 
-risk = st.sidebar.selectbox("Select Risk Level", ["All", "SAFE", "STRESSED", "CRITICAL"])
+risk = st.sidebar.selectbox(
+    "Select Risk Level",
+    ["All", "SAFE", "STRESSED", "CRITICAL"]
+)
+
 search_id = st.sidebar.text_input("🔍 Search ID (Pipe / Drain)")
 
 st.subheader(view_option)
@@ -37,6 +41,7 @@ st.subheader(view_option)
 # ------------------ COLOR FUNCTION ------------------
 def get_color(status):
     status = str(status).strip().upper()
+
     if status == "CRITICAL":
         return [255, 0, 0]
     elif status == "STRESSED":
@@ -71,9 +76,10 @@ if view_option == "Pipes Network":
         # ---------------- CLEAN BASE DATA ----------------
         pipes_clean = pipes.copy()
 
-        # Drop old columns (avoid duplication)
         pipes_clean = pipes_clean.drop(columns=[
-            "Utilization", "Failure_Probability", "Pipe_Status", "Month"
+            "Utilization",
+            "Failure_Probability",
+            "Pipe_Status"
         ], errors="ignore")
 
         # Clean IDs
@@ -96,11 +102,24 @@ if view_option == "Pipes Network":
             pipes_clean["Pipe_Status"].astype(str).str.strip().str.upper()
         )
 
+        # ---------------- FILTER ----------------
+        filtered_pipes = pipes_clean.copy()
+
+        if risk != "All":
+            filtered_pipes = filtered_pipes[
+                filtered_pipes["Pipe_Status"] == risk
+            ]
+
         # ---------------- SEARCH ----------------
         if search_id:
             searched = filtered_pipes[
-                filtered_pipes["Pipe_ID"].str.contains(search_id.upper(), case=False)
+                filtered_pipes["Pipe_ID"].str.contains(
+                    search_id.upper(),
+                    case=False,
+                    na=False
+                )
             ]
+
             if not searched.empty:
                 filtered_pipes = searched
 
@@ -133,20 +152,21 @@ if view_option == "Pipes Network":
             view_state = pdk.ViewState(
                 latitude=lat,
                 longitude=lon,
-                zoom=zoom_level,
+                zoom=zoom_level
             )
 
-            st.pydeck_chart(pdk.Deck(
-                layers=[layer],
-                initial_view_state=view_state,
-                tooltip={
-                    "html": "<b>Pipe:</b> {Pipe_ID}<br/>"
-                            "<b>Status:</b> {Pipe_Status}<br/>"
-                            "<b>Failure:</b> {Failure_Probability}"
-                }
-            ))
+            st.pydeck_chart(
+                pdk.Deck(
+                    layers=[layer],
+                    initial_view_state=view_state,
+                    tooltip={
+                        "html": "<b>Pipe:</b> {Pipe_ID}<br/>"
+                                "<b>Status:</b> {Pipe_Status}<br/>"
+                                "<b>Failure:</b> {Failure_Probability}"
+                    }
+                )
+            )
 
-            # TABLE
             with st.expander("📊 View Pipe Data"):
                 st.dataframe(filtered_pipes)
 
@@ -162,30 +182,36 @@ if view_option == "Pipes Network":
 elif view_option == "Drain Nodes":
 
     if uploaded_file:
+
         drains = pd.read_csv(uploaded_file)
         drains.columns = drains.columns.str.strip()
 
         # Fix column names
         if "lat" in drains.columns:
             drains = drains.rename(columns={"lat": "latitude"})
+
         if "lon" in drains.columns:
             drains = drains.rename(columns={"lon": "longitude"})
 
         # Required columns
-        required_cols = ["latitude", "longitude", "Drain_Status", "Month"]
+        required_cols = ["latitude", "longitude", "Drain_Status"]
+
         for col in required_cols:
             if col not in drains.columns:
                 st.error(f"Missing column: {col}")
                 st.stop()
 
-        # Fix data
-        drains["Month"] = pd.to_numeric(drains["Month"], errors="coerce")
+        # Fix Data
         drains["Drain_Status"] = (
-            drains["Drain_Status"].fillna("SAFE").astype(str).str.strip().str.upper()
+            drains["Drain_Status"]
+            .fillna("SAFE")
+            .astype(str)
+            .str.strip()
+            .str.upper()
         )
 
         # ---------------- FILTER ----------------
-        filtered_drains = drains[drains["Month"] == month]
+        filtered_drains = drains.copy()
 
         if risk != "All":
             filtered_drains = filtered_drains[
@@ -195,8 +221,11 @@ elif view_option == "Drain Nodes":
         # ---------------- SEARCH ----------------
         if search_id and "Drain_ID" in filtered_drains.columns:
             searched = filtered_drains[
-                filtered_drains["Drain_ID"].astype(str).str.contains(search_id, case=False)
+                filtered_drains["Drain_ID"]
+                .astype(str)
+                .str.contains(search_id, case=False, na=False)
             ]
+
             if not searched.empty:
                 filtered_drains = searched
 
@@ -230,18 +259,19 @@ elif view_option == "Drain Nodes":
             view_state = pdk.ViewState(
                 latitude=lat,
                 longitude=lon,
-                zoom=zoom_level,
+                zoom=zoom_level
             )
 
-            st.pydeck_chart(pdk.Deck(
-                layers=[layer],
-                initial_view_state=view_state,
-                tooltip={
-                    "html": "<b>Drain:</b> {Drain_ID}<br/>"
-                            "<b>Status:</b> {Drain_Status}<br/>"
-                            "<b>Month:</b> {Month}"
-                }
-            ))
+            st.pydeck_chart(
+                pdk.Deck(
+                    layers=[layer],
+                    initial_view_state=view_state,
+                    tooltip={
+                        "html": "<b>Drain:</b> {Drain_ID}<br/>"
+                                "<b>Status:</b> {Drain_Status}"
+                    }
+                )
+            )
 
             st.dataframe(filtered_drains)
             st.write("Filtered rows:", len(filtered_drains))
