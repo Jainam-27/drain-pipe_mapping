@@ -29,11 +29,10 @@ view_option = st.sidebar.radio(
     ["Pipes Network", "Drain Nodes"]
 )
 
-month = st.sidebar.selectbox("Select Month", list(range(1, 13)))
 risk = st.sidebar.selectbox("Select Risk Level", ["All", "SAFE", "STRESSED", "CRITICAL"])
 search_id = st.sidebar.text_input("🔍 Search ID (Pipe / Drain)")
 
-st.subheader(f"{view_option} - Month {month}")
+st.subheader(view_option)
 
 # ------------------ COLOR FUNCTION ------------------
 def get_color(status):
