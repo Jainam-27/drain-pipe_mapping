@@ -215,7 +215,7 @@ elif view_option == "Drain Nodes":
 
         if risk != "All":
             filtered_drains = filtered_drains[
-                filtered_drains["Drain_Status"] == risk
+                filtered_drains["Operational_Status"] == risk
             ]
 
         # ---------------- SEARCH ----------------
