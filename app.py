@@ -231,7 +231,7 @@ elif view_option == "Drain Nodes":
 
         # ---------------- COLOR ----------------
         filtered_drains = filtered_drains.copy()
-        filtered_drains["color"] = filtered_drains["Drain_Status"].apply(get_color)
+        filtered_drains["color"] = filtered_drains["Operational_Status"].apply(get_color)
 
         # ---------------- MAP ----------------
         if not filtered_drains.empty:
@@ -268,7 +268,7 @@ elif view_option == "Drain Nodes":
                     initial_view_state=view_state,
                     tooltip={
                         "html": "<b>Drain:</b> {Drain_ID}<br/>"
-                                "<b>Status:</b> {Drain_Status}"
+                                "<b>Status:</b> {Operational_Status}"
                     }
                 )
             )
