@@ -194,7 +194,7 @@ elif view_option == "Drain Nodes":
             drains = drains.rename(columns={"lon": "longitude"})
 
         # Required columns
-        required_cols = ["latitude", "longitude", "Drain_Status"]
+        required_cols = ["latitude", "longitude", "Operational_Status"]
 
         for col in required_cols:
             if col not in drains.columns:
