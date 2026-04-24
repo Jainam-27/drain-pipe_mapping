@@ -202,8 +202,8 @@ elif view_option == "Drain Nodes":
                 st.stop()
 
         # Fix Data
-        drains["Drain_Status"] = (
-            drains["Drain_Status"]
+        drains["Operational_Status"] = (
+            drains["Operational_Status"]
             .fillna("SAFE")
             .astype(str)
             .str.strip()
